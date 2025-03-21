@@ -7,3 +7,6 @@ permissions:
   joinguard.admin:
     description: Permission to use all JoinGuard commands
     default: op
+  joinguard.notify.updatecheck:
+    description: Permission to receive update notifications
+    default: op
