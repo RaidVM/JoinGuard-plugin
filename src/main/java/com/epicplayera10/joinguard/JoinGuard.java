@@ -3,9 +3,11 @@ package com.epicplayera10.joinguard;
 import co.aikar.commands.PaperCommandManager;
 import com.epicplayera10.joinguard.commands.JoinGuardCommand;
 import com.epicplayera10.joinguard.config.ConfigurationFactory;
+import com.epicplayera10.joinguard.config.DataConfiguration;
 import com.epicplayera10.joinguard.config.PluginConfiguration;
 import com.epicplayera10.joinguard.listeners.LoginListener;
 import com.epicplayera10.joinguard.managers.BlocklistManager;
+import com.epicplayera10.joinguard.managers.VersionManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -22,8 +24,10 @@ import java.util.concurrent.CompletableFuture;
 public final class JoinGuard extends JavaPlugin {
     public static final Gson GSON = new Gson();
     private final File pluginConfigurationFile = new File(this.getDataFolder(), "config.yml");
+    private final File dataConfigurationFile = new File(this.getDataFolder(), "data.yml");
 
     private PluginConfiguration pluginConfiguration;
+    private DataConfiguration dataConfiguration;
 
     private static JoinGuard instance;
 
@@ -32,6 +36,7 @@ public final class JoinGuard extends JavaPlugin {
         instance = this;
 
         this.pluginConfiguration = ConfigurationFactory.createPluginConfiguration(this.pluginConfigurationFile);
+        this.dataConfiguration = ConfigurationFactory.createDataConfiguration(this.dataConfigurationFile);
 
         registerCommands();
 
@@ -45,11 +50,15 @@ public final class JoinGuard extends JavaPlugin {
             0,
             20 * 60 * 3 // Run task every 3 minutes
         );
+
+        // Initialize version manager for update checking
+        VersionManager.initialize();
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        // Save data configuration
+        this.dataConfiguration.save();
     }
 
     private void registerCommands() {
@@ -67,9 +76,14 @@ public final class JoinGuard extends JavaPlugin {
     public PluginConfiguration pluginConfiguration() {
         return pluginConfiguration;
     }
+    
+    public DataConfiguration dataConfiguration() {
+        return dataConfiguration;
+    }
 
     public void reloadConfiguration() {
         this.pluginConfiguration.load();
+        this.dataConfiguration.load();
     }
 
     public static HttpClient newHttpClient() {

@@ -28,4 +28,19 @@ public class ConfigurationFactory {
             it.load(true);
         });
     }
+    
+    public static DataConfiguration createDataConfiguration(File file) {
+        return ConfigManager.create(DataConfiguration.class, (it) -> {
+            it.withConfigurer(new OkaeriValidator(new YamlBukkitConfigurer()));
+            it.withSerdesPack(registry -> {
+                registry.register(new SerdesCommons());
+                registry.register(new SerdesBukkit());
+            });
+
+            it.withBindFile(file);
+            it.withLogger(JoinGuard.instance().getLogger());
+            it.saveDefaults();
+            it.load(true);
+        });
+    }
 }
