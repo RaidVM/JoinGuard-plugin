@@ -75,9 +75,14 @@ public class JoinGuardCommand extends BaseCommand {
             } else if (status.equals("Invalid API key")) {
                 String url = "https://joinguard.raidvm.com/api/register?state=" + JoinGuard.instance().pluginConfiguration().serverId;
 
-                BaseComponent component = new TextComponent(TextComponent.fromLegacyText(ChatUtils.colorize("&b&nKliknij tutaj aby się zarejestrować!")));
-                component.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-                sender.spigot().sendMessage(component);
+                if (sender instanceof Player) {
+                    BaseComponent component = new TextComponent(TextComponent.fromLegacyText(ChatUtils.colorize("&b&nKliknij tutaj aby się zarejestrować!")));
+                    component.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
+                    sender.spigot().sendMessage(component);
+                } else {
+                    sender.sendMessage(ChatUtils.colorize("&b&nKliknij tutaj aby się zarejestrować!"));
+                    sender.sendMessage(ChatUtils.colorize("&7" + url));
+                }
             } else {
                 sender.sendMessage(ChatUtils.colorize("&cWystąpił błąd podczas łączenia z serwerem!"));
             }
