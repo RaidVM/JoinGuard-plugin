@@ -4,6 +4,7 @@ import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
 import co.aikar.commands.annotation.CommandAlias;
 import co.aikar.commands.annotation.CommandPermission;
+import co.aikar.commands.annotation.Description;
 import co.aikar.commands.annotation.HelpCommand;
 import co.aikar.commands.annotation.Subcommand;
 import co.aikar.commands.bukkit.contexts.OnlinePlayer;
@@ -15,10 +16,8 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerLoginEvent;
 
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
@@ -32,6 +31,7 @@ public class JoinGuardCommand extends BaseCommand {
     }
 
     @Subcommand("reload")
+    @Description("Przeładuj konfigurację")
     public void reload(CommandSender sender) {
         sender.sendMessage("Reloading configuration...");
         JoinGuard.instance().reloadConfiguration();
@@ -39,6 +39,7 @@ public class JoinGuardCommand extends BaseCommand {
     }
 
     @Subcommand("whitelist add")
+    @Description("Dodaj gracza do whitelisty")
     public void whitelistAdd(CommandSender sender, String playerName) {
         JoinGuard.instance().pluginConfiguration().whitelistedNicks.add(playerName);
         JoinGuard.instance().pluginConfiguration().save();
@@ -46,6 +47,7 @@ public class JoinGuardCommand extends BaseCommand {
     }
 
     @Subcommand("whitelist remove")
+    @Description("Usuń gracza z whitelisty")
     public void whitelistRemove(CommandSender sender, String playerName) {
         JoinGuard.instance().pluginConfiguration().whitelistedNicks.remove(playerName);
         JoinGuard.instance().pluginConfiguration().save();
@@ -53,6 +55,7 @@ public class JoinGuardCommand extends BaseCommand {
     }
 
     @Subcommand("whitelist list")
+    @Description("Wyświetl listę graczy na whitelistcie")
     public void whitelistList(CommandSender sender) {
         StringBuilder builder = new StringBuilder();
         boolean first = true;
@@ -67,6 +70,7 @@ public class JoinGuardCommand extends BaseCommand {
     }
 
     @Subcommand("login")
+    @Description("Zaloguj się przez Discorda, aby funkcja zgłoszeń działała")
     public void login(CommandSender sender) {
         CompletableFuture.runAsync(() -> {
             String status = JoinGuardAPI.getServerRegistrationStatus().join();
@@ -90,6 +94,7 @@ public class JoinGuardCommand extends BaseCommand {
     }
 
     @Subcommand("report")
+    @Description("Zgłoś gracza")
     public void reportPlayer(Player player, OnlinePlayer reportedPlayer) {
         CompletableFuture.runAsync(() -> {
             JsonObject report = createReportJson(reportedPlayer.getPlayer(), player).join();
