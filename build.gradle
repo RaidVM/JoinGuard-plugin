@@ -33,13 +33,16 @@ dependencies {
     implementation 'eu.okaeri:okaeri-configs-validator-okaeri:5.0.5'
     implementation 'eu.okaeri:okaeri-placeholders-bukkit:5.1.1'
 
+    implementation 'org.bstats:bstats-bukkit:3.0.2'
+
     implementation "co.aikar:acf-paper:0.5.1-SNAPSHOT"
 }
 
 shadowJar {
-    relocate("eu.okaeri", "com.epicplayera10.exampleplugin.libs.eu.okaeri")
-    relocate("co.aikar.commands", "com.epicplayera10.exampleplugin.libs.acf")
-    relocate("co.aikar.locales", "com.epicplayera10.exampleplugin.libs.locales")
+    relocate("eu.okaeri", "com.epicplayera10.joinguard.libs.eu.okaeri")
+    relocate("co.aikar.commands", "com.epicplayera10.joinguard.libs.acf")
+    relocate("co.aikar.locales", "com.epicplayera10.joinguard.libs.locales")
+    relocate("org.bstats", "com.epicplayera10.joinguard.libs.bstats")
 }
 
 assemble.dependsOn(shadowJar)

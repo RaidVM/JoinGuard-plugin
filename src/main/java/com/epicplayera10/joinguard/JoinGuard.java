@@ -10,6 +10,7 @@ import com.epicplayera10.joinguard.managers.BlocklistManager;
 import com.epicplayera10.joinguard.managers.VersionManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -34,6 +35,9 @@ public final class JoinGuard extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
+
+        // Metrics
+        setupMetrics();
 
         this.pluginConfiguration = ConfigurationFactory.createPluginConfiguration(this.pluginConfigurationFile);
         this.dataConfiguration = ConfigurationFactory.createDataConfiguration(this.dataConfigurationFile);
@@ -108,5 +112,10 @@ public final class JoinGuard extends JavaPlugin {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private void setupMetrics() {
+        int pluginId = 25361;
+        Metrics metrics = new Metrics(this, pluginId);
     }
 }
