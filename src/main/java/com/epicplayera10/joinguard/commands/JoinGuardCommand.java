@@ -40,12 +40,12 @@ public class JoinGuardCommand extends BaseCommand {
     @Description("Dodaj gracza do whitelisty")
     public void whitelistAdd(CommandSender sender, String playerName) {
         if (JoinGuard.instance().pluginConfiguration().whitelistedNicks.contains(playerName)){
-            sender.sendMessage(ChatUtils.colorize("&cPlayer is already whitelisted"));
+            sender.sendMessage(ChatUtils.colorize("&cGracz jest już na whitelistcie"));
             return;
         }
         JoinGuard.instance().pluginConfiguration().whitelistedNicks.add(playerName);
         JoinGuard.instance().pluginConfiguration().save();
-        sender.sendMessage("Player added to whitelist!");
+        sender.sendMessage("Dodano "+playerName+" do whitelisty");
     }
 
     @Subcommand("whitelist remove")
@@ -54,19 +54,19 @@ public class JoinGuardCommand extends BaseCommand {
     @Description("Usuń gracza z whitelisty")
     public void whitelistRemove(CommandSender sender, String playerName) {
         if (!JoinGuard.instance().pluginConfiguration().whitelistedNicks.contains(playerName)){
-            sender.sendMessage(ChatUtils.colorize("&cPlayer is not whitelisted"));
+            sender.sendMessage(ChatUtils.colorize("&cGracza nie ma na whitelistcie"));
             return;
         }
         JoinGuard.instance().pluginConfiguration().whitelistedNicks.remove(playerName);
         JoinGuard.instance().pluginConfiguration().save();
-        sender.sendMessage("Player removed from whitelist!");
+        sender.sendMessage("Usunięto "+playerName+" z whitelisty");
     }
 
     @Subcommand("whitelist list")
     @Description("Wyświetl listę graczy na whitelistcie")
     public void whitelistList(CommandSender sender) {
         if (JoinGuard.instance().pluginConfiguration().whitelistedNicks.isEmpty()){
-            sender.sendMessage("There are no whitelisted players");
+            sender.sendMessage("Na whitelistcie nie ma żadnych graczy");
             return;
         }
         StringBuilder builder = new StringBuilder();
@@ -78,7 +78,7 @@ public class JoinGuardCommand extends BaseCommand {
             builder.append(nick);
             first = false;
         }
-        sender.sendMessage("Whitelisted players: " + builder);
+        sender.sendMessage("Gracze na whitelistcie: " + builder);
     }
 
     @Subcommand("login")
