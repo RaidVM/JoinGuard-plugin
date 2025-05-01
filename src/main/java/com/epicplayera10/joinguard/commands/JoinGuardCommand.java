@@ -45,7 +45,7 @@ public class JoinGuardCommand extends BaseCommand {
         }
         JoinGuard.instance().pluginConfiguration().whitelistedNicks.add(playerName);
         JoinGuard.instance().pluginConfiguration().save();
-        sender.sendMessage("Dodano "+playerName+" do whitelisty");
+        sender.sendMessage("Dodano " + playerName + " do whitelisty");
     }
 
     @Subcommand("whitelist remove")
@@ -59,7 +59,7 @@ public class JoinGuardCommand extends BaseCommand {
         }
         JoinGuard.instance().pluginConfiguration().whitelistedNicks.remove(playerName);
         JoinGuard.instance().pluginConfiguration().save();
-        sender.sendMessage("Usunięto "+playerName+" z whitelisty");
+        sender.sendMessage("Usunięto " + playerName + " z whitelisty");
     }
 
     @Subcommand("whitelist list")
