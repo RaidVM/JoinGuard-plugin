@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -21,6 +22,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 public final class JoinGuard extends JavaPlugin {
     public static final Gson GSON = new Gson();
@@ -69,6 +71,15 @@ public final class JoinGuard extends JavaPlugin {
         PaperCommandManager manager = new PaperCommandManager(this);
 
         manager.enableUnstableAPI("help");
+
+        manager.getCommandCompletions().registerCompletion("not_whitelisted",
+                c -> Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .filter(name -> !pluginConfiguration.whitelistedNicks.contains(name))
+                        .collect(Collectors.toList()));
+
+        manager.getCommandCompletions().registerCompletion("whitelist",
+                c -> pluginConfiguration.whitelistedNicks);
 
         manager.registerCommand(new JoinGuardCommand());
     }

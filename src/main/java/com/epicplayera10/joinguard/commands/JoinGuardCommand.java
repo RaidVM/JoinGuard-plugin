@@ -2,11 +2,7 @@ package com.epicplayera10.joinguard.commands;
 
 import co.aikar.commands.BaseCommand;
 import co.aikar.commands.CommandHelp;
-import co.aikar.commands.annotation.CommandAlias;
-import co.aikar.commands.annotation.CommandPermission;
-import co.aikar.commands.annotation.Description;
-import co.aikar.commands.annotation.HelpCommand;
-import co.aikar.commands.annotation.Subcommand;
+import co.aikar.commands.annotation.*;
 import co.aikar.commands.bukkit.contexts.OnlinePlayer;
 import com.epicplayera10.joinguard.JoinGuard;
 import com.epicplayera10.joinguard.utils.ChatUtils;
@@ -22,7 +18,7 @@ import org.bukkit.entity.Player;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 
-@CommandAlias("joinguard")
+@CommandAlias("joinguard|jg")
 @CommandPermission("joinguard.admin")
 public class JoinGuardCommand extends BaseCommand {
     @HelpCommand
@@ -39,24 +35,40 @@ public class JoinGuardCommand extends BaseCommand {
     }
 
     @Subcommand("whitelist add")
+    @Syntax("<gracz>")
+    @CommandCompletion("@not_whitelisted")
     @Description("Dodaj gracza do whitelisty")
     public void whitelistAdd(CommandSender sender, String playerName) {
+        if (JoinGuard.instance().pluginConfiguration().whitelistedNicks.contains(playerName)){
+            sender.sendMessage(ChatUtils.colorize("&cGracz jest już na whitelistcie"));
+            return;
+        }
         JoinGuard.instance().pluginConfiguration().whitelistedNicks.add(playerName);
         JoinGuard.instance().pluginConfiguration().save();
-        sender.sendMessage("Player added to whitelist!");
+        sender.sendMessage("Dodano " + playerName + " do whitelisty");
     }
 
     @Subcommand("whitelist remove")
+    @Syntax("<gracz>")
+    @CommandCompletion("@whitelist")
     @Description("Usuń gracza z whitelisty")
     public void whitelistRemove(CommandSender sender, String playerName) {
+        if (!JoinGuard.instance().pluginConfiguration().whitelistedNicks.contains(playerName)){
+            sender.sendMessage(ChatUtils.colorize("&cGracza nie ma na whitelistcie"));
+            return;
+        }
         JoinGuard.instance().pluginConfiguration().whitelistedNicks.remove(playerName);
         JoinGuard.instance().pluginConfiguration().save();
-        sender.sendMessage("Player removed from whitelist!");
+        sender.sendMessage("Usunięto " + playerName + " z whitelisty");
     }
 
     @Subcommand("whitelist list")
     @Description("Wyświetl listę graczy na whitelistcie")
     public void whitelistList(CommandSender sender) {
+        if (JoinGuard.instance().pluginConfiguration().whitelistedNicks.isEmpty()){
+            sender.sendMessage("Na whitelistcie nie ma żadnych graczy");
+            return;
+        }
         StringBuilder builder = new StringBuilder();
         boolean first = true;
         for (String nick : JoinGuard.instance().pluginConfiguration().whitelistedNicks) {
@@ -66,7 +78,7 @@ public class JoinGuardCommand extends BaseCommand {
             builder.append(nick);
             first = false;
         }
-        sender.sendMessage("Whitelisted players: " + builder);
+        sender.sendMessage("Gracze na whitelistcie: " + builder);
     }
 
     @Subcommand("login")
@@ -94,6 +106,7 @@ public class JoinGuardCommand extends BaseCommand {
     }
 
     @Subcommand("report")
+    @Syntax("<gracz>")
     @Description("Zgłoś gracza")
     public void reportPlayer(Player player, OnlinePlayer reportedPlayer) {
         CompletableFuture.runAsync(() -> {
