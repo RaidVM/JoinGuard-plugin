@@ -3,6 +3,8 @@ version: '${version}'
 main: com.epicplayera10.joinguard.JoinGuard
 api-version: '1.13'
 authors: [EpicPlayerA10, Raelx]
+description: Protects your server from disruptive players.
+website: https://joinguard.pl
 permissions:
   joinguard.admin:
     description: Permission to use all JoinGuard commands
