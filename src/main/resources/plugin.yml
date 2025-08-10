@@ -12,3 +12,6 @@ permissions:
   joinguard.notify.updatecheck:
     description: Permission to receive update notifications
     default: op
+  joinguard.notify.join:
+    description: Permission to receive join notifications for players that are on joinguard.
+    default: op

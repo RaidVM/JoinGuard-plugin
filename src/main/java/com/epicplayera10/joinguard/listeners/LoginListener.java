@@ -5,6 +5,9 @@ import com.epicplayera10.joinguard.managers.BlocklistManager;
 import com.epicplayera10.joinguard.utils.ChatUtils;
 import com.epicplayera10.joinguard.utils.JoinGuardAPI;
 import com.google.common.hash.Hashing;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
@@ -35,10 +38,19 @@ public class LoginListener implements Listener {
 
         // Check if the player is blocked
         if (isPlayerBlocked) {
+            JoinGuard.instance().getLogger().warning("Player " + playerName + " is on JoinGuard!");
+
+            if (JoinGuard.instance().pluginConfiguration().standbyMode) {
+                Bukkit.broadcast(
+                    Component.text("[JoinGuard] ").color(NamedTextColor.AQUA)
+                        .append(Component.text("Player " + playerName + " is on JoinGuard!").color(NamedTextColor.RED)),
+                    "joinguard.notify.join"
+                );
+                return;
+            }
+
             // Disallow player from joining
-            String kickMessage = ChatUtils.colorize(
-                JoinGuard.instance().pluginConfiguration().messages.blockedMessage
-            );
+            String kickMessage = ChatUtils.colorize("&cThis server is protected by JoinGuard");
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, kickMessage);
 
             // Send the attempt message

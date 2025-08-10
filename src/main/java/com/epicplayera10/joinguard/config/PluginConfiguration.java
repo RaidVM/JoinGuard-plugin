@@ -21,10 +21,6 @@ public class PluginConfiguration extends OkaeriConfig {
     public List<String> whitelistedNicks = new ArrayList<>();
 
     @Comment("")
-    @Comment("Messages configuration in MiniMessage format https://docs.advntr.dev/minimessage/format")
-    public Messages messages = new Messages();
-
-    public static class Messages extends OkaeriConfig {
-        public String blockedMessage = "&cThis server is protected by JoinGuard";
-    }
+    @Comment("Standby mode - if enabled, the plugin will not block players from joining, will only log attempts")
+    public boolean standbyMode = false;
 }
