@@ -27,7 +27,7 @@ public class JoinGuardCommand extends BaseCommand {
     }
 
     @Subcommand("reload")
-    @Description("Przeładuj konfigurację")
+    @Description("Reload the configuration")
     public void reload(CommandSender sender) {
         sender.sendMessage("Reloading configuration...");
         JoinGuard.instance().reloadConfiguration();
@@ -35,38 +35,38 @@ public class JoinGuardCommand extends BaseCommand {
     }
 
     @Subcommand("whitelist add")
-    @Syntax("<gracz>")
+    @Syntax("<player>")
     @CommandCompletion("@not_whitelisted")
-    @Description("Dodaj gracza do whitelisty")
+    @Description("Add a player to the whitelist")
     public void whitelistAdd(CommandSender sender, String playerName) {
-        if (JoinGuard.instance().pluginConfiguration().whitelistedNicks.contains(playerName)){
-            sender.sendMessage(ChatUtils.colorize("&cGracz jest już na whitelistcie"));
+        if (JoinGuard.instance().pluginConfiguration().whitelistedNicks.contains(playerName)) {
+            sender.sendMessage(ChatUtils.colorize("&cThat player is already on the whitelist"));
             return;
         }
         JoinGuard.instance().pluginConfiguration().whitelistedNicks.add(playerName);
         JoinGuard.instance().pluginConfiguration().save();
-        sender.sendMessage("Dodano " + playerName + " do whitelisty");
+        sender.sendMessage("Added " + playerName + " to the whitelist");
     }
 
     @Subcommand("whitelist remove")
-    @Syntax("<gracz>")
+    @Syntax("<player>")
     @CommandCompletion("@whitelist")
-    @Description("Usuń gracza z whitelisty")
+    @Description("Remove a player from the whitelist")
     public void whitelistRemove(CommandSender sender, String playerName) {
-        if (!JoinGuard.instance().pluginConfiguration().whitelistedNicks.contains(playerName)){
-            sender.sendMessage(ChatUtils.colorize("&cGracza nie ma na whitelistcie"));
+        if (!JoinGuard.instance().pluginConfiguration().whitelistedNicks.contains(playerName)) {
+            sender.sendMessage(ChatUtils.colorize("&cThat player is not on the whitelist"));
             return;
         }
         JoinGuard.instance().pluginConfiguration().whitelistedNicks.remove(playerName);
         JoinGuard.instance().pluginConfiguration().save();
-        sender.sendMessage("Usunięto " + playerName + " z whitelisty");
+        sender.sendMessage("Removed " + playerName + " from the whitelist");
     }
 
     @Subcommand("whitelist list")
-    @Description("Wyświetl listę graczy na whitelistcie")
+    @Description("Show the list of whitelisted players")
     public void whitelistList(CommandSender sender) {
-        if (JoinGuard.instance().pluginConfiguration().whitelistedNicks.isEmpty()){
-            sender.sendMessage("Na whitelistcie nie ma żadnych graczy");
+        if (JoinGuard.instance().pluginConfiguration().whitelistedNicks.isEmpty()) {
+            sender.sendMessage("There are no players on the whitelist");
             return;
         }
         StringBuilder builder = new StringBuilder();
@@ -78,43 +78,43 @@ public class JoinGuardCommand extends BaseCommand {
             builder.append(nick);
             first = false;
         }
-        sender.sendMessage("Gracze na whitelistcie: " + builder);
+        sender.sendMessage("Whitelisted players: " + builder);
     }
 
     @Subcommand("login")
-    @Description("Zaloguj się przez Discorda, aby funkcja zgłoszeń działała")
+    @Description("Log in via Discord to enable the report feature")
     public void login(CommandSender sender) {
         CompletableFuture.runAsync(() -> {
             String status = JoinGuardAPI.getServerRegistrationStatus().join();
             if (status.equals("ok")) {
-                sender.sendMessage(ChatUtils.colorize("&aJesteś już zalogowany!"));
+                sender.sendMessage(ChatUtils.colorize("&aYou are already logged in!"));
             } else if (status.equals("Invalid API key")) {
                 String url = "https://joinguard.raidvm.com/api/register?state=" + JoinGuard.instance().pluginConfiguration().serverId;
 
                 if (sender instanceof Player) {
-                    BaseComponent component = new TextComponent(TextComponent.fromLegacyText(ChatUtils.colorize("&b&nKliknij tutaj aby się zarejestrować!")));
+                    BaseComponent component = new TextComponent(TextComponent.fromLegacyText(ChatUtils.colorize("&b&nClick here to register!")));
                     component.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
                     sender.spigot().sendMessage(component);
                 } else {
-                    sender.sendMessage(ChatUtils.colorize("&b&nKliknij tutaj aby się zarejestrować!"));
+                    sender.sendMessage(ChatUtils.colorize("&b&nClick here to register!"));
                     sender.sendMessage(ChatUtils.colorize("&7" + url));
                 }
             } else {
-                sender.sendMessage(ChatUtils.colorize("&cWystąpił błąd podczas łączenia z serwerem!"));
+                sender.sendMessage(ChatUtils.colorize("&cAn error occurred while connecting to the server!"));
             }
         });
     }
 
     @Subcommand("report")
-    @Syntax("<gracz>")
-    @Description("Zgłoś gracza")
+    @Syntax("<player>")
+    @Description("Report a player")
     public void reportPlayer(Player player, OnlinePlayer reportedPlayer) {
         CompletableFuture.runAsync(() -> {
             JsonObject report = createReportJson(reportedPlayer.getPlayer(), player).join();
             String encodedReport = Base64.getEncoder().encodeToString(report.toString().getBytes());
             String url = "https://joinguard.raidvm.com/login/oauth2?state=" + encodedReport;
 
-            BaseComponent component = new TextComponent(TextComponent.fromLegacyText(ChatUtils.colorize("&b&nKliknij tutaj aby wysłać zgłoszenie!")));
+            BaseComponent component = new TextComponent(TextComponent.fromLegacyText(ChatUtils.colorize("&b&nClick here to send the report!")));
             component.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
             player.spigot().sendMessage(component);
         });
@@ -122,23 +122,23 @@ public class JoinGuardCommand extends BaseCommand {
 
     private CompletableFuture<JsonObject> createReportJson(Player reported, Player reporter) {
         return CompletableFuture.supplyAsync(() -> {
-            // Reporter
+            // Reported player
             JsonObject reportedJson = new JsonObject();
             reportedJson.addProperty("nick", reported.getName());
             reportedJson.addProperty("uuid", reported.getUniqueId().toString());
             reportedJson.addProperty("ip", reported.getAddress().getHostString());
-            // Reported
-            JsonObject reportedPlayerJson = new JsonObject();
-            reportedPlayerJson.addProperty("nick", reporter.getName());
+            // Reporter
+            JsonObject reporterJson = new JsonObject();
+            reporterJson.addProperty("nick", reporter.getName());
             // Server data
             JsonObject serverJson = new JsonObject();
             serverJson.addProperty("ip", JoinGuard.getServerIp().join());
             serverJson.addProperty("port", Bukkit.getPort());
 
-            // Bind this data
+            // Combine the data
             JsonObject reportJson = new JsonObject();
             reportJson.add("reported", reportedJson);
-            reportJson.add("reporting", reportedPlayerJson);
+            reportJson.add("reporting", reporterJson);
             reportJson.add("server", serverJson);
 
             return reportJson;
