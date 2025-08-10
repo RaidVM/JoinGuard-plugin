@@ -112,9 +112,9 @@ public class LoginListener implements Listener {
      * @param ipAddress Player's IP address
      * @param uuid Player's UUID
      */
-    private void trackAltAccount(String ipAddress, UUID uuid) {
+    private synchronized void trackAltAccount(String ipAddress, UUID uuid) {
         List<UUID> alts = JoinGuard.instance().dataConfiguration().playerAlts.getOrDefault(ipAddress, new ArrayList<>());
-        
+
         // Add the UUID if it doesn't exist already
         if (!alts.contains(uuid)) {
             alts.add(uuid);
