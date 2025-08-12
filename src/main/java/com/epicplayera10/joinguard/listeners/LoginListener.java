@@ -93,9 +93,14 @@ public class LoginListener implements Listener {
      * @return true if player is blocked, false otherwise
      */
     private boolean isPlayerBlocked(String playerName, UUID playerUuid, String hashedIp) {
-        return BlocklistManager.getBlockedNicknames().contains(playerName) ||
-               BlocklistManager.getBlockedUuids().contains(playerUuid.toString()) ||
-               BlocklistManager.getBlockedIpHashes().contains(hashedIp);
+        if (!Bukkit.getServer().getOnlineMode()) {
+            // If offline-mode, then also check nicknames
+            if (BlocklistManager.getBlockedNicknames().contains(playerName)) {
+                return true;
+            }
+        }
+
+        return BlocklistManager.getBlockedUuids().contains(playerUuid.toString()) || BlocklistManager.getBlockedIpHashes().contains(hashedIp);
     }
     
     /**
