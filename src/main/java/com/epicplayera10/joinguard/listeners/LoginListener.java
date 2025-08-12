@@ -25,6 +25,12 @@ public class LoginListener implements Listener {
         UUID playerUuid = event.getUniqueId();
         String ipAddress = event.getAddress().getHostAddress();
 
+        if (event.getAddress().isLoopbackAddress()) {
+            // Ignore loopback addresses (localhost)
+            JoinGuard.instance().getLogger().info("Ignoring loopback address for player: " + playerName);
+            return;
+        }
+
         // Track alts
         trackAltAccount(ipAddress, playerUuid);
         
