@@ -53,20 +53,19 @@ public class LoginListener implements Listener {
                         .append(Component.text("Player " + playerName + " is on JoinGuard!").color(NamedTextColor.RED)),
                     "joinguard.notify.join"
                 );
+            } else {
+                // Disallow player from joining
+                String kickMessage = ChatUtils.colorize("&cThis server is protected by JoinGuard");
+                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, kickMessage);
+
+                // Send the attempt message
+                JoinGuardAPI.sendAttemptMessage(playerName, playerUuid, ipAddress).whenComplete((v, e) -> {
+                    if (e != null) {
+                        JoinGuard.instance().getLogger().log(Level.SEVERE, "Failed to send attempt message", e);
+                    }
+                });
                 return;
             }
-
-            // Disallow player from joining
-            String kickMessage = ChatUtils.colorize("&cThis server is protected by JoinGuard");
-            event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, kickMessage);
-
-            // Send the attempt message
-            JoinGuardAPI.sendAttemptMessage(playerName, playerUuid, ipAddress).whenComplete((v, e) -> {
-                if (e != null) {
-                    JoinGuard.instance().getLogger().log(Level.SEVERE, "Failed to send attempt message", e);
-                }
-            });
-            return;
         }
 
         // Alt detection
