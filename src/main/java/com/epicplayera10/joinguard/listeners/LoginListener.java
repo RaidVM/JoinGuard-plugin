@@ -8,9 +8,12 @@ import com.google.common.hash.Hashing;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -20,7 +23,7 @@ import java.util.logging.Level;
 
 public class LoginListener implements Listener {
     @EventHandler
-    public void onLogin(AsyncPlayerPreLoginEvent event) {
+    public void onPreLogin(AsyncPlayerPreLoginEvent event) {
         String playerName = event.getName();
         UUID playerUuid = event.getUniqueId();
         String ipAddress = event.getAddress().getHostAddress();
@@ -44,8 +47,6 @@ public class LoginListener implements Listener {
 
         // Check if the player is blocked
         if (isPlayerBlocked) {
-            JoinGuard.instance().getLogger().warning("Player " + playerName + " is on JoinGuard!");
-
             if (JoinGuard.instance().pluginConfiguration().standbyMode) {
                 Bukkit.broadcast(
                     Component.text("[JoinGuard] ").color(NamedTextColor.AQUA)
@@ -80,6 +81,17 @@ public class LoginListener implements Listener {
                         JoinGuard.instance().getLogger().log(Level.SEVERE, "Failed to send alt detection message", e);
                     }
                 });
+            }
+        }
+    }
+
+    @EventHandler
+    public void onLogin(PlayerLoginEvent event) {
+        Player player = event.getPlayer();
+        if (JoinGuard.instance().pluginConfiguration().standbyMode) {
+            if (isPlayerBlocked(player.getName(), player.getUniqueId(), event.getAddress().getHostAddress())) {
+                // Add metadata to player if they are blocked in standby mode
+                player.setMetadata("on_joinguard", new FixedMetadataValue(JoinGuard.instance(), true));
             }
         }
     }
