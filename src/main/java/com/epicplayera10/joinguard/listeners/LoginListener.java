@@ -1,6 +1,7 @@
 package com.epicplayera10.joinguard.listeners;
 
 import com.epicplayera10.joinguard.JoinGuard;
+import com.epicplayera10.joinguard.config.DataConfiguration;
 import com.epicplayera10.joinguard.managers.BlocklistManager;
 import com.epicplayera10.joinguard.utils.ChatUtils;
 import com.epicplayera10.joinguard.utils.JoinGuardAPI;
@@ -16,12 +17,13 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 
 public class LoginListener implements Listener {
+    private static final long ALT_TRACKING_EXPIRATION = 1000L * 60 * 60 * 24 * 30; // 30 days
+
     @EventHandler
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
         String playerName = event.getName();
@@ -68,13 +70,13 @@ public class LoginListener implements Listener {
         }
 
         // Alt detection
-        List<UUID> altAccounts = JoinGuard.instance().dataConfiguration().playerAlts.getOrDefault(ipAddress, new ArrayList<>());
-        if (altAccounts.size() > 1) {
-            boolean hasBlockedAlt = containsBlockedAlt(altAccounts);
+        DataConfiguration.PlayerAlts playerAlts = JoinGuard.instance().dataConfiguration().playerAltsNew.getOrDefault(ipAddress, new DataConfiguration.PlayerAlts());
+        if (playerAlts.uuids.size() > 1) {
+            boolean hasBlockedAlt = containsBlockedAlt(playerAlts.uuids);
 
             if (hasBlockedAlt) {
                 // Send the alt detection message
-                JoinGuardAPI.sendAltDetectionMessage(playerName, playerUuid, ipAddress, altAccounts).whenComplete((v, e) -> {
+                JoinGuardAPI.sendAltDetectionMessage(playerName, playerUuid, ipAddress, playerAlts.uuids).whenComplete((v, e) -> {
                     if (e != null) {
                         JoinGuard.instance().getLogger().log(Level.SEVERE, "Failed to send alt detection message", e);
                     }
@@ -134,14 +136,25 @@ public class LoginListener implements Listener {
      * @param uuid Player's UUID
      */
     private synchronized void trackAltAccount(String ipAddress, UUID uuid) {
-        List<UUID> alts = JoinGuard.instance().dataConfiguration().playerAlts.getOrDefault(ipAddress, new ArrayList<>());
+        clearExpiredAlts();
+
+        DataConfiguration.PlayerAlts alts = JoinGuard.instance().dataConfiguration().playerAltsNew.getOrDefault(ipAddress, new DataConfiguration.PlayerAlts());
+
+        alts.lastLogin = System.currentTimeMillis();
 
         // Add the UUID if it doesn't exist already
-        if (!alts.contains(uuid)) {
-            alts.add(uuid);
-            JoinGuard.instance().dataConfiguration().playerAlts.put(ipAddress, alts);
-            JoinGuard.instance().dataConfiguration().save();
+        if (!alts.uuids.contains(uuid)) {
+            alts.uuids.add(uuid);
         }
+        JoinGuard.instance().dataConfiguration().save();
+    }
+
+    private void clearExpiredAlts() {
+        long currentTime = System.currentTimeMillis();
+        JoinGuard.instance().dataConfiguration().playerAltsNew.entrySet().removeIf(entry -> {
+            DataConfiguration.PlayerAlts alts = entry.getValue();
+            return currentTime - alts.lastLogin > ALT_TRACKING_EXPIRATION;
+        });
     }
 
     private String hashIp(String ip) {

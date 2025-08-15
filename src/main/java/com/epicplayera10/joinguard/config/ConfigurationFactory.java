@@ -1,6 +1,7 @@
 package com.epicplayera10.joinguard.config;
 
 import com.epicplayera10.joinguard.JoinGuard;
+import com.epicplayera10.joinguard.migrations.D0001_New_alts_structure;
 import eu.okaeri.configs.ConfigManager;
 import eu.okaeri.configs.serdes.commons.SerdesCommons;
 import eu.okaeri.configs.validator.okaeri.OkaeriValidator;
@@ -41,6 +42,10 @@ public class ConfigurationFactory {
             it.withLogger(JoinGuard.instance().getLogger());
             it.saveDefaults();
             it.load(true);
+
+            it.migrate(
+                new D0001_New_alts_structure()
+            );
         });
     }
 }
