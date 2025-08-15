@@ -38,11 +38,6 @@ public class LoginListener implements Listener {
 
         // Track alts
         trackAltAccount(ipAddress, playerUuid);
-        
-        // Check if player is whitelisted
-        if (JoinGuard.instance().pluginConfiguration().whitelistedNicks.contains(playerName)) {
-            return;
-        }
 
         String hashedIp = hashIp(ipAddress);
         boolean isPlayerBlocked = isPlayerBlocked(playerName, playerUuid, hashedIp);
@@ -50,15 +45,19 @@ public class LoginListener implements Listener {
         // Check if the player is blocked
         if (isPlayerBlocked) {
             if (JoinGuard.instance().pluginConfiguration().standbyMode) {
+                // Standby mode
                 Bukkit.broadcast(
                     Component.text("[JoinGuard] ").color(NamedTextColor.AQUA)
                         .append(Component.text("Player " + playerName + " is on JoinGuard!").color(NamedTextColor.RED)),
                     "joinguard.notify.join"
                 );
             } else {
-                // Disallow player from joining
-                String kickMessage = ChatUtils.colorize("&cThis server is protected by JoinGuard");
-                event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, kickMessage);
+                // Check if player is whitelisted
+                if (!JoinGuard.instance().pluginConfiguration().whitelistedNicks.contains(playerName)) {
+                    // Disallow player from joining
+                    String kickMessage = ChatUtils.colorize("&cThis server is protected by JoinGuard");
+                    event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_BANNED, kickMessage);
+                }
             }
             // Send the attempt message
             JoinGuardAPI.sendAttemptMessage(playerName, playerUuid, ipAddress).whenComplete((v, e) -> {
